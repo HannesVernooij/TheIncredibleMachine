@@ -1,0 +1,17 @@
+<Level>
+  <LevelObjects>
+      <LevelObject xpos="-9.037" ypos="-4.215 " gridxpos="96 " gridypos="78" id="3"></LevelObject>
+      <LevelObject xpos="-3.505" ypos="-0.869 " gridxpos="650 " gridypos="413" id="3"></LevelObject>
+      <LevelObject xpos="-2.047" ypos="-0.701 " gridxpos="795 " gridypos="430" id="3"></LevelObject>
+      <LevelObject xpos="-0.551" ypos="1.28 " gridxpos="945 " gridypos="628" id="3"></LevelObject>
+      <LevelObject xpos="0.009" ypos="-4.551 " gridxpos="1001 " gridypos="45" id="0"></LevelObject>
+      <LevelObject xpos="0.607" ypos="2.028 " gridxpos="1061 " gridypos="703" id="3"></LevelObject>
+      <LevelObject xpos="0.963" ypos="2.308 " gridxpos="1096 " gridypos="731" id="2"></LevelObject>
+      <LevelObject xpos="1.224" ypos="2.607 " gridxpos="1122 " gridypos="761" id="2"></LevelObject>
+      <LevelObject xpos="1.393" ypos="3.542 " gridxpos="1139 " gridypos="854" id="1"></LevelObject>
+      <LevelObject xpos="1.467" ypos="2.794 " gridxpos="1147 " gridypos="779" id="2"></LevelObject>
+  </LevelObjects>
+  <Inventory>
+      <InventoryItem id="0" amount="5"></InventoryItem>
+  </Inventory>
+</Level>

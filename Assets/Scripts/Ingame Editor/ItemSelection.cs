@@ -22,24 +22,17 @@ public class ItemSelection : MonoBehaviour
     private float _snappedX, _snappedY;
     private int _gridX, _gridY;
     private Item[][] _levelData;
-    private List<Button> _currentUIItems = new List<Button>();
+    private List<Button> _currentUIItems;
     private int _levelHeight, _levelWidth;
-    private List<Text> _tileAmountTexts = new List<Text>();
+    private List<Text> _tileAmountTexts;
 
-    // debug data
-    [Space(10)]
-    [SerializeField]
-    private Text _debugTxt;
+    // level data
+    private GridPosition[] _persistentLevelObjects;
 
-    private void Start()
+    private void Awake()
     {
+        Debug.Log("Awake");
         Cursor.SetCursor(_cursorTex, new Vector2(0, 0), CursorMode.Auto);
-        Inventory newInv = new Inventory();
-        newInv.AddItem(0, 5);
-        newInv.AddItem(1, 5);
-        newInv.AddItem(2, 5);
-
-        SetInventory(newInv);
 
         _levelHeight = Mathf.CeilToInt(Camera.main.orthographicSize * 2);
         _levelWidth = Mathf.CeilToInt(_levelHeight * Camera.main.aspect);
@@ -51,15 +44,28 @@ public class ItemSelection : MonoBehaviour
         {
             _levelData[x] = new Item[_levelHeight];
         }
-        Debug.Log(_levelData.Length);
+    }
+
+    public void FillInventory()
+    {
+        Inventory inv = new Inventory();
+        for (int i = 0; i < _availableItemObects.Length; i++)
+        {
+            inv.AddItem(i, 99);
+        }
+        SetInventory(inv);
     }
 
     private void SetInventory(Inventory inventory)
     {
+        _currentUIItems = new List<Button>();
+        _tileAmountTexts = new List<Text>();
+
+        ClearOldInventory();
         _inventory = inventory;
-        for (int i = 0; i < _inventory.ItemList.Count; i++)
+        for (int i = 0; i < _inventory.Items.Count; i++)
         {
-            int itemID = _inventory.ItemList[i];
+            int itemID = _inventory.Items[i].ID;
             GameObject UIitem = Instantiate(_uiPrefab) as GameObject;
             Button UIButton = UIitem.GetComponent<Button>();
             UIitem.name = "UI item " + itemID;
@@ -74,28 +80,51 @@ public class ItemSelection : MonoBehaviour
             o.transform.SetParent(UIitem.transform);
             Text txt = o.GetComponent<Text>();
             _tileAmountTexts.Add(txt);
-            txt.text = _inventory.ItemAmountList[i].ToString();
+            txt.text = _inventory.Items[i].Amount.ToString();
         }
+    }
+
+    private void ClearOldInventory()
+    {
+        for (int i = 0; i < _currentUIItems.Count; i++)
+        {
+            Destroy(_currentUIItems[i].gameObject);
+        }
+        _currentUIItems = new List<Button>();
     }
 
     public void GrabItem(int id)
     {
-        if (_inventory.ItemAmountList[id] > 0)
+        if (_inventory.GetItemAmount(id) > 0)
         {
             RemoveSelectedItem();
-
-            _inventory.GetAndDecreaseItemAmount(id);
-            _tileAmountTexts[id].text = _inventory.ItemAmountList[id].ToString();
+            int textID = _inventory.GetPosition(id);
+            _inventory.DecreaseItemAmount(id);
+            _tileAmountTexts[textID].text = _inventory.GetItemAmount(id).ToString();
             GameObject item = Instantiate(_availableItemObects[id]);
             _selectedItem = item.GetComponent<Item>();
             Sprite spr = _selectedItem.GetComponent<Sprite>();
             _selectedItem.ID = id;
 
-            if(_inventory.ItemAmountList[id] == 0)
+            if (_inventory.GetItemAmount(id) == 0)
             {
-                _currentUIItems[id].interactable = false;
+                _currentUIItems[textID].interactable = false;
             }
         }
+    }
+
+    private bool NotStaticOnLevel(int x, int y)
+    {
+        if (_persistentLevelObjects == null) return true;
+        for (int i = 0; i < _persistentLevelObjects.Length; i++)
+        {
+            GridPosition p = _persistentLevelObjects[i];
+            if (p.X == x && p.Y == y)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void Update()
@@ -119,41 +148,48 @@ public class ItemSelection : MonoBehaviour
         }
 
     }
+
     private void RemoveSelectedItem()
     {
         if (_selectedItem != null)
         {
             int oldItemID = _selectedItem.ID;
-            _inventory.ItemAmountList[oldItemID]++;
-            _tileAmountTexts[_selectedItem.ID].text = _inventory.ItemAmountList[oldItemID].ToString();
+            _inventory.Items[oldItemID].Amount++;
+            _tileAmountTexts[_selectedItem.ID].text = _inventory.Items[oldItemID].Amount.ToString();
             Destroy(_selectedItem.gameObject);
-            
-            if(_inventory.ItemAmountList[oldItemID] == 1)
+
+            if (_inventory.Items[oldItemID].Amount == 1)
             {
                 _currentUIItems[oldItemID].interactable = true;
             }
-            //if inv item not exists -> add
-            //_inventory.AddItem(_selectedItem.ID, 1);
         }
 
     }
 
     private void GetOrPlaceSelectedItem()
     {
+        PlayMode.Instance.Stop();
         if (_selectedItem == null)
         {
             if (_levelData[_gridX][_gridY] != null)
             {
-                _selectedItem = _levelData[_gridX][_gridY];
+                if (NotStaticOnLevel(_gridX, _gridY))
+                {
+                    int id = _levelData[_gridX][_gridY].ID;
+                    int itemPos = _inventory.GetPosition(id);
+                    _inventory.Items[itemPos].Amount++;
+                    Destroy(_levelData[_gridX][_gridY].gameObject);
+                    GrabItem(id);
+                }
             }
         }
         else
         {
             if (CanPlaceItem(_selectedItem))
             {
-                _levelData[_gridX][_gridY] = _selectedItem;
-                _levelData[_gridX][_gridY].Pos = new Vector2(_snappedX, _snappedY);
-                PlaceObjectOnGrid(_selectedItem);
+                Vector2 center = new Vector2(_snappedX, _snappedY);
+                GridPosition gridCenter = new GridPosition(_gridX, _gridY);
+                PlaceObjectOnGrid(_selectedItem,center,gridCenter);
                 _selectedItem = null;
             }
         }
@@ -177,46 +213,45 @@ public class ItemSelection : MonoBehaviour
         {
             for (int y = bottomY; y < bottomY + height; y++)
             {
-                if (_levelData[x][y] != null)
+                if (x > 0 && x < _levelWidth && y > 0 && y < _levelHeight)
                 {
-                    return false;
+                    if (_levelData[x][y] != null)
+                    {
+                        Debug.Log("CanPlace = false");
+                        return false;
+                    }
                 }
+                else return false;
             }
         }
         return true;
     }
 
-    private void PlaceObjectOnGrid(Item item)
+    private void PlaceObjectOnGrid(Item item, Vector2 center, GridPosition gridCenter)
     {
-        // set center of object
-        float centerX = _snappedX;
-        float centerY = _snappedY;
-
+        Debug.Log("PLACING OBJECT" + item.gameObject);
         // set width and height in grid units
         float gridUnitSize = (1f / _gridDetail);
         int width = Mathf.CeilToInt((item.Width / gridUnitSize));
         int height = Mathf.CeilToInt((item.Height / gridUnitSize));
-
-        int leftX = _gridX - width / 2;
-        int bottomY = _gridY - height / 2;
-
-        item.transform.position = new Vector2(centerX, centerY);
+        int leftX = gridCenter.X - width / 2;
+        int bottomY = gridCenter.Y - height / 2;
+        item.transform.position = center;
+        item.Pos = center;
+        item.PosOnGrid = gridCenter;
         for (int x = leftX; x < leftX + width; x++)
         {
             for (int y = bottomY; y < bottomY + height; y++)
             {
-                _levelData[x][y] = item;
+                if (y < _levelData[x].Length)
+                {
+                    _levelData[x][y] = item;
+                }
             }
         }
-        //_levelData[_gridX][_gridY] = null;
     }
 
-    private void TakeObjectFromGrid(Item item)
-    {
-
-    }
-
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (_levelData != null)
         {
@@ -236,7 +271,7 @@ public class ItemSelection : MonoBehaviour
         }
     }
 
-    void SetMouseGridPos()
+    private void SetMouseGridPos()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         float x = ((float)System.Math.Round(mousePos.x, 3));
@@ -255,8 +290,62 @@ public class ItemSelection : MonoBehaviour
 
             _gridX = Mathf.RoundToInt(x * _gridDetail) + _levelWidth / 2;
             _gridY = Mathf.RoundToInt(y * _gridDetail) + _levelHeight / 2;
+        }
+    }
 
-            _debugTxt.text = _gridX + " " + _gridY + "      " + _snappedX + " " + _snappedY;
+    public LevelObject[] GetLevelObjects()
+    {
+        List<Item> addedItems = new List<Item>();
+        List<LevelObject> levelObjects = new List<LevelObject>();
+        for (int i = 0; i < _levelData.GetLength(0); i++)
+        {
+            for (int j = 0; j < _levelData[0].GetLength(0); j++)
+            {
+                Item item = _levelData[i][j];
+                if (item != null && !addedItems.Contains(item))
+                {
+                    Debug.Log(item.ID + " " + i + " " + j);
+                    GridPosition pos = new GridPosition(i, j);
+                    int id = item.ID;
+                    levelObjects.Add(new LevelObject(item.Pos, item.PosOnGrid, id));
+                    addedItems.Add(item);
+                }
+            }
+        }
+        return levelObjects.ToArray();
+    }
+
+    public void PrepareLevel(Level l)
+    {
+        PlayMode.Instance.Stop();
+        ClearGrid();
+        _persistentLevelObjects = new GridPosition[l.LevelObjects.Length];
+        for (int i = 0; i < l.LevelObjects.Length; i++)
+        {
+            LevelObject o = l.LevelObjects[i];
+            _persistentLevelObjects[i] = new GridPosition(o.GridPos.X, o.GridPos.Y);
+            GameObject itemObject = Instantiate(_availableItemObects[o.ID]);
+            itemObject.transform.position = new Vector2(0,0);
+            Item item = itemObject.GetComponent<Item>();
+            PlaceObjectOnGrid(item,o.Pos,o.GridPos);
+        }
+
+        SetInventory(l.Inventory);
+    }
+
+    private void ClearGrid()
+    {
+        Debug.Log("Clearing the Grid");
+        for (int i = 0; i < _levelWidth; i++)
+        {
+            for (int j = 0; j < _levelHeight; j++)
+            {
+                Item g = _levelData[i][j];
+                if (g != null)
+                {
+                    Destroy(g.gameObject);
+                }
+            }
         }
     }
 }

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The incredible Machine.CSharp", "The incredible Machine.CSharp.csproj", "{E0FB9599-3017-41AB-CA7D-73B4AD6BC5CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The incredible Machine.CSharp.Editor", "The incredible Machine.CSharp.Editor.csproj", "{17F7E64F-7FF1-75E2-B6E0-3E0F4FF132C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{E0FB9599-3017-41AB-CA7D-73B4AD6BC5CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0FB9599-3017-41AB-CA7D-73B4AD6BC5CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0FB9599-3017-41AB-CA7D-73B4AD6BC5CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17F7E64F-7FF1-75E2-B6E0-3E0F4FF132C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17F7E64F-7FF1-75E2-B6E0-3E0F4FF132C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17F7E64F-7FF1-75E2-B6E0-3E0F4FF132C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17F7E64F-7FF1-75E2-B6E0-3E0F4FF132C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
