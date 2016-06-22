@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+[System.Serializable]
 public class FallingObject : ActiveObject
 {
     private Vector2 _pos;

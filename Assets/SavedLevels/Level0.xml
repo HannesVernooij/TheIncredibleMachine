@@ -1,7 +1,7 @@
 <Level>
   <LevelObjects>
-    <LevelObject xpos="0.897" ypos="0.495 " gridxpos="1190 " gridypos="550" id="0"></LevelObject>
-    <LevelObject xpos="3.57" ypos="3.393 " gridxpos="1457 " gridypos="839" id="1"></LevelObject>
+      <LevelObject xpos="0.626" ypos="0.85 " gridxpos="1063 " gridypos="585" id="0"></LevelObject>
+      <LevelObject xpos="5.206" ypos="3.617 " gridxpos="1521 " gridypos="862" id="1"></LevelObject>
   </LevelObjects>
   <Inventory>
     <InventoryItem id="2" amount="3"></InventoryItem>

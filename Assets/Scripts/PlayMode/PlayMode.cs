@@ -15,6 +15,7 @@ public class PlayMode : Singleton<PlayMode>
 
     //play & stop for objects
     private bool _active = false;
+    [SerializeField]
     private FallingObject _fallingObject;
     public FallingObject FallingObject { get { return _fallingObject; } }
     public delegate void VoidDelegate();
@@ -25,7 +26,6 @@ public class PlayMode : Singleton<PlayMode>
     {
         if (_playMode)
         {
-            //StartCoroutine(DelayNextLevel(2));
             NextLevel();
         }
         else _itemSelection.FillInventory();
@@ -34,6 +34,7 @@ public class PlayMode : Singleton<PlayMode>
     private void NextLevel()
     {
         _currentLevel++;
+        _fallingObject = null;
         _itemSelection.PrepareLevel(_levelLoader.GetLevel(_currentLevel));
     }
 

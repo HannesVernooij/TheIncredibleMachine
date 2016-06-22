@@ -22,12 +22,17 @@ public class ItemSelection : MonoBehaviour
     private float _snappedX, _snappedY;
     private int _gridX, _gridY;
     private Item[][] _levelData;
+    [SerializeField]
     private List<Button> _currentUIItems;
     private int _levelHeight, _levelWidth;
     private List<Text> _tileAmountTexts;
 
     // level data
     private GridPosition[] _persistentLevelObjects;
+
+    // debug
+    [SerializeField]
+    Text _debugTxt;
 
     private void Awake()
     {
@@ -58,9 +63,6 @@ public class ItemSelection : MonoBehaviour
 
     private void SetInventory(Inventory inventory)
     {
-        _currentUIItems = new List<Button>();
-        _tileAmountTexts = new List<Text>();
-
         ClearOldInventory();
         _inventory = inventory;
         for (int i = 0; i < _inventory.Items.Count; i++)
@@ -91,6 +93,7 @@ public class ItemSelection : MonoBehaviour
             Destroy(_currentUIItems[i].gameObject);
         }
         _currentUIItems = new List<Button>();
+        _tileAmountTexts = new List<Text>();
     }
 
     public void GrabItem(int id)
@@ -115,14 +118,33 @@ public class ItemSelection : MonoBehaviour
 
     private bool NotStaticOnLevel(int x, int y)
     {
+        //#TODO
         if (_persistentLevelObjects == null) return true;
         for (int i = 0; i < _persistentLevelObjects.Length; i++)
         {
             GridPosition p = _persistentLevelObjects[i];
-            if (p.X == x && p.Y == y)
-            {
-                return false;
-            }
+            Item item = _levelData[p.X][p.Y];
+
+            int width = Mathf.CeilToInt((item.Width / _gridDetail));
+            int height = Mathf.CeilToInt((item.Height / _gridDetail));
+
+            // CHECK NOT WORKING YET
+            // right = Mathf.RoundToInt(item.PosOnGrid.X +  / 2);
+            //int left = Mathf.RoundToInt(item.PosOnGrid.X - width);
+            //int up = Mathf.RoundToInt(item.PosOnGrid.Y + ((float)item.Width * _gridDetail) / 2);
+            //int down = Mathf.RoundToInt(item.PosOnGrid.Y + ((float)item.Width * _gridDetail) / 2);
+
+            //for (int ix = left; ix < right; ix++)
+            //{
+            //    for (int iy = down; iy < up; iy++)
+            //    {
+            //        Debug.Log(ix + " " + iy + "         " + p.X + " " + p.Y);
+            //        if (ix == x && iy == y)
+            //        {
+            //            return false;
+            //        }
+            //    }
+            //}
         }
         return true;
     }
@@ -187,7 +209,7 @@ public class ItemSelection : MonoBehaviour
         {
             if (CanPlaceItem(_selectedItem))
             {
-                Vector2 center = new Vector2(_snappedX, _snappedY);
+                Vector2 center = _selectedItem.transform.position;
                 GridPosition gridCenter = new GridPosition(_gridX, _gridY);
                 PlaceObjectOnGrid(_selectedItem,center,gridCenter);
                 _selectedItem = null;
@@ -229,7 +251,6 @@ public class ItemSelection : MonoBehaviour
 
     private void PlaceObjectOnGrid(Item item, Vector2 center, GridPosition gridCenter)
     {
-        Debug.Log("PLACING OBJECT" + item.gameObject);
         // set width and height in grid units
         float gridUnitSize = (1f / _gridDetail);
         int width = Mathf.CeilToInt((item.Width / gridUnitSize));
@@ -239,6 +260,8 @@ public class ItemSelection : MonoBehaviour
         item.transform.position = center;
         item.Pos = center;
         item.PosOnGrid = gridCenter;
+
+        Debug.Log(gridCenter.X + " " + leftX);
         for (int x = leftX; x < leftX + width; x++)
         {
             for (int y = bottomY; y < bottomY + height; y++)
@@ -291,6 +314,7 @@ public class ItemSelection : MonoBehaviour
             _gridX = Mathf.RoundToInt(x * _gridDetail) + _levelWidth / 2;
             _gridY = Mathf.RoundToInt(y * _gridDetail) + _levelHeight / 2;
         }
+        _debugTxt.text = _gridX + " " + _gridY;
     }
 
     public LevelObject[] GetLevelObjects()
@@ -325,7 +349,6 @@ public class ItemSelection : MonoBehaviour
             LevelObject o = l.LevelObjects[i];
             _persistentLevelObjects[i] = new GridPosition(o.GridPos.X, o.GridPos.Y);
             GameObject itemObject = Instantiate(_availableItemObects[o.ID]);
-            itemObject.transform.position = new Vector2(0,0);
             Item item = itemObject.GetComponent<Item>();
             PlaceObjectOnGrid(item,o.Pos,o.GridPos);
         }

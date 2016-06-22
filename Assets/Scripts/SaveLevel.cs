@@ -8,8 +8,9 @@ public class SaveLevel : MonoBehaviour
     [SerializeField]
     private ItemSelection _itemSelectionScript;
     [SerializeField]
+    private int[] _itemAmounts;
+    [SerializeField]
     private bool _save = false;
-
     private void Update()
     {
         if(_save)
@@ -35,10 +36,15 @@ public class SaveLevel : MonoBehaviour
 
         Inventory inventory = new Inventory();
 
-        inventory.AddItem(0, 5);
-        inventory.AddItem(1, 5);
-        inventory.AddItem(2, 5);
-        inventory.AddItem(3, 5);
+        for (int i = 0; i < _itemAmounts.Length; i++)
+        {
+            int amount = _itemAmounts[i];
+            if (amount != 0)
+            {
+                inventory.AddItem(i, amount);
+            }
+        }
+
         writer.WriteLine("  <Inventory>");
 
         for (int i = 0; i < inventory.Items.Count; i++)

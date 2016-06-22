@@ -1,12 +1,9 @@
 <Level>
   <LevelObjects>
-      <LevelObject xpos="-7.047" ypos="-3.056 " gridxpos="395 " gridypos="194" id="0"></LevelObject>
-      <LevelObject xpos="3.308" ypos="2.346 " gridxpos="1431 " gridypos="735" id="1"></LevelObject>
+      <LevelObject xpos="-6.402" ypos="-3.243 " gridxpos="360 " gridypos="176" id="0"></LevelObject>
+      <LevelObject xpos="4.514" ypos="3.953 " gridxpos="1451 " gridypos="895" id="1"></LevelObject>
   </LevelObjects>
   <Inventory>
-      <InventoryItem id="0" amount="5"></InventoryItem>
-      <InventoryItem id="1" amount="5"></InventoryItem>
-      <InventoryItem id="2" amount="5"></InventoryItem>
-      <InventoryItem id="3" amount="5"></InventoryItem>
+      <InventoryItem id="3" amount="2"></InventoryItem>
   </Inventory>
 </Level>

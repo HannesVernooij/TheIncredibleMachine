@@ -47,12 +47,13 @@ public class Fade : MonoBehaviour
         _txt.color = new Color(_color.r, _color.g, _color.b, _targetFade?_fadeValue:1-_fadeValue);
 
         if (_fadeValue < 1) StartCoroutine(DelayFade(fadeTwice));
-        else if(fadeTwice == true)
+        else if (fadeTwice == true)
         {
             _fadeValue = 0;
             _targetFade = !_targetFade;
             Fading(false);
         }
+        else _txt.gameObject.SetActive(false);
     }
 
     private IEnumerator DelayFade(bool fadeTwice)
