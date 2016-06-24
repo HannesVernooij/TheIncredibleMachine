@@ -9,4 +9,9 @@ public abstract class ActiveObject : MonoBehaviour
     }
     public abstract void Play();
     public abstract void Stop();
+    private void OnDestroy()
+    {
+        PlayMode.Instance.PlayEvent -= Play;
+        PlayMode.Instance.PlayEvent -= Stop;
+    }
 }

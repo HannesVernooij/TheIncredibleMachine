@@ -33,15 +33,8 @@ public class PlayMode : Singleton<PlayMode>
 
     private void NextLevel()
     {
-        if (StopEvent != null)
-        {
-            StopEvent();
-        }
         _currentLevel++;
         _fallingObject = null;
-        Debug.Log("DELETE OBJECT: " + Time.time);
-        PlayEvent = null;
-        StopEvent = null;
         _itemSelection.PrepareLevel(_levelLoader.GetLevel(_currentLevel));
     }
 
@@ -62,7 +55,6 @@ public class PlayMode : Singleton<PlayMode>
         if (_active == true)
         {
             _active = false;
-            Debug.Log("NUMBER OF LISTENERS: " + StopEvent.GetInvocationList().Length);
             if (StopEvent != null)
             {
                 StopEvent();
