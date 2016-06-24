@@ -1,0 +1,8 @@
+<Level>
+  <LevelObjects>
+      <LevelObject xpos="-6.869" ypos="-3.112 " gridxpos="313 " gridypos="189" id="0"></LevelObject>
+      <LevelObject xpos="-6.832" ypos="-2.121 " gridxpos="317 " gridypos="288" id="1"></LevelObject>
+  </LevelObjects>
+  <Inventory>
+  </Inventory>
+</Level>

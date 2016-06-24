@@ -10,8 +10,15 @@ public class FallingObject : ActiveObject
 
     private void Awake()
     {
+        Debug.Log("SET: " + Time.time);
         PlayMode.Instance.SetFallingObject(this);
-        _rigidbody = gameObject.AddComponent<Rigidbody2D>();
+        //Debug.Log(_rigidbody != null);
+        Debug.Log(gameObject.GetInstanceID());
+        _rigidbody = gameObject.GetComponent<Rigidbody2D>();
+        if (_rigidbody == null)
+        {
+            _rigidbody = gameObject.AddComponent<Rigidbody2D>();
+        }
         _collider = gameObject.AddComponent<CircleCollider2D>();
         _rigidbody.isKinematic = true;
     }
@@ -24,6 +31,12 @@ public class FallingObject : ActiveObject
 
     public override void Stop()
     {
+        if (this == null)
+        {
+            return;
+        }
+        Debug.Log(gameObject.GetInstanceID());
+        Debug.Log("KINEMATIC: " + Time.time);
         _rigidbody.isKinematic = true;
         transform.position = _pos;
     }

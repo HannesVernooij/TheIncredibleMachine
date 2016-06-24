@@ -341,7 +341,6 @@ public class ItemSelection : MonoBehaviour
 
     public void PrepareLevel(Level l)
     {
-        PlayMode.Instance.Stop();
         ClearGrid();
         _persistentLevelObjects = new GridPosition[l.LevelObjects.Length];
         for (int i = 0; i < l.LevelObjects.Length; i++)
